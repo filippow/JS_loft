@@ -7,8 +7,8 @@
  Посмотрите как работает forEach и повторите это поведение для массива, который будет передан в параметре array
  */
 function forEach(array, fn) {
-    for (let i=0; i<array.length; i++) {
-        fn(array[i], i, array)
+    for (let i=0; i < array.length; i++) {
+        fn(array[i], i, array);
     }
 }
 
@@ -21,12 +21,12 @@ function forEach(array, fn) {
 function map(array, fn) {
     let newArr = [];
 
-    for (let i=0; i<array.length; i++) {
+    for (let i=0; i < array.length; i++) {
         newArr.push(fn(array[i], i, array))
     }
     // Вместо цикла можно использовать forEach
 
-    return newArr
+    return newArr;
 }
 
 /*
@@ -46,7 +46,7 @@ function reduce(array, fn, initial) {
         }
     }
 
-    return accum
+    return accum;
 }
 /*
  Задание 4:
@@ -65,7 +65,7 @@ function upperProps(obj) {
         }
     }
 
-    return arr
+    return arr;
 }
 
 /*
@@ -74,24 +74,32 @@ function upperProps(obj) {
  Напишите аналог встроенного метода slice для работы с массивами
  Посмотрите как работает slice и повторите это поведение для массива, который будет передан в параметре array
  */
-function slice(array, from, to) {
+function slice(array, from = 0, to) {
     let arr = [], 
         len = array.length;
 
     // to != 'number' в случае если to = undefined или null
-    if (typeof to != 'number' || to<0 || to> len) {
+    if (typeof to != 'number' || to > len) {
         to = len;
     } 
 
-    if (from<0) {
-        from = 0;
+    if (to < 0) {
+        to = len+to;
     }
 
-    for (let i=from; i<to ; i++) {
+    if (from < 0) {
+        if (from+len < 0) {
+            from = 0;
+        } else {
+            from = len + from;
+        }
+    }
+
+    for (let i = from; i < to ; i++) {
         arr.push(array[i]);
     }
 
-    return arr
+    return arr;
 }
 /*
  Задание 6 *:
