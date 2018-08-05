@@ -116,37 +116,37 @@ function calculator(number = 0) {
     }
 
     return {
-        sum (...args) {
-            for (let i = 0; i < args.length; i++) {
-                number += args[i];
+        sum () {
+            for (let i = 0; i < arguments.length; i++) {
+                number += arguments[i];
             }
 
             return number;
         },
 
-        dif (...args) {
-            for (let i = 0; i < args.length; i++) {
-                number -= args[i];
+        dif () {
+            for (let i = 0; i < arguments.length; i++) {
+                number -= arguments[i];
             }
 
             return number;
         },
         
-        div (...args) {
-            for (let i = 0; i < args.length; i++) {
-                if (args[i] === 0) {
+        div () {
+            for (let i = 0; i < arguments.length; i++) {
+                if (arguments[i] === 0) {
                     throw new Error('division by 0');
                 } else {
-                    number /= args[i];
+                    number /= arguments[i];
                 }
             }
 
             return number;
         },
 
-        mul (...args) {
-            for (let i = 0; i < args.length; i++) {
-                number *= args[i];
+        mul () {
+            for (let i = 0; i < arguments.length; i++) {
+                number *= arguments[i];
             }
 
             return number;
