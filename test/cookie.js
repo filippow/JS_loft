@@ -58,7 +58,7 @@ describe('ДЗ 7.2 - Cookie editor', () => {
 
         it('cookie должны добавляться при нажатии на "добавить"', () => {
             let cookies;
-
+            
             addNameInput.value = 'test-cookie-name-1';
             addValueInput.value = 'test-cookie-value-1';
             addButton.click();
