@@ -10,9 +10,7 @@
  */
 function delayPromise(seconds) {
     return new Promise( function(resolve) {
-        setTimeout(function() {
-            resolve()
-        }, seconds * 1000)
+        setTimeout(resolve, seconds * 1000);
     })
 }
 
@@ -29,16 +27,17 @@ function delayPromise(seconds) {
  Пример:
    loadAndSortTowns().then(towns => console.log(towns)) // должна вывести в консоль отсортированный массив городов
  */
+function compareFunc(a, b) {
+    a = a.name.toLowerCase();
+    b = b.name.toLowerCase();
+
+    return a > b ? 1 : (a < b ? -1 : 0)
+}
+
 function loadAndSortTowns() {
     return new Promise( function( resolve, reject) {
         var xhr = new XMLHttpRequest(),
-            towns = [],
-            compareFunc = function(a, b) {
-                a = a.name.toLowerCase();
-                b = b.name.toLowerCase();
-
-                return a > b ? 1 : (a < b ? -1 : 0)
-            }
+            towns = [];
 
         xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json', true);
         xhr.send();
@@ -48,7 +47,7 @@ function loadAndSortTowns() {
             }
 
             if (xhr.status != 200) {
-                reject();
+                reject(xhr.status);
             } else {
                 towns = JSON.parse(xhr.responseText).sort(compareFunc);
                 resolve(towns); 

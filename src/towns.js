@@ -39,16 +39,19 @@ const homeworkContainer = document.querySelector('#homework-container');
 function loadTowns() {
     return new Promise( function( resolve, reject) {
         var xhr = new XMLHttpRequest(),
-            towns = [],
-            compareFunc = function(a, b) {
-                a = a.name.toLowerCase();
-                b = b.name.toLowerCase();
+            towns = [];
 
-                return a > b ? 1 : (a < b ? -1 : 0)
-            }
+        function compareFunc(a, b) {
+            a = a.name.toLowerCase();
+            b = b.name.toLowerCase();
 
+            return a > b ? 1 : (a < b ? -1 : 0)
+        }
+        // debugger;
+        setLoadingBlock('loading');
         xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json', true);
         xhr.send();
+       
         xhr.onreadystatechange = function() {
             if (this.readyState != 4) {
                 return
@@ -81,46 +84,69 @@ function isMatching(full, chunk) {
 
 /* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
-/* Блок с текстовым полем и результатом поиска */
+// /* Блок с текстовым полем и результатом поиска */
 const filterBlock = homeworkContainer.querySelector('#filter-block');
-/* Текстовое поле для поиска по городам */
+// /* Текстовое поле для поиска по городам */
 const filterInput = homeworkContainer.querySelector('#filter-input');
-/* Блок с результатами поиска */ 
+// /* Блок с результатами поиска */ 
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-let loadingBlockState = 'init';
+function setLoadingBlock(loadingBlockState) {
+    let obj = {
+        init: clearLoadigBlock,
+        loading: setLoadOnLoadingBlock,
+        nothing: setNotFoundOnLoadingBlock,
+        error: setErrorOnLoadingBlock
+    };
 
-loadingBlock.style.height = 20 + 'px';
-filterBlock.style.display = 'block';
+    obj[loadingBlockState]();
+}
 
-let setLoadingBlock = function() {
-    switch (loadingBlockState) {
-        case 'init': 
-            loadingBlock.textContent = '';
-            break;
-        case 'loading':
-            loadingBlock.textContent = 'Загрузка...';
-            break;
-        case 'nothing':
-            loadingBlock.textContent = 'Ничего не найдено';
-            break;
-        case 'error':
-            loadingBlock.textContent = 'Произошла ошибка при загрузке...';
-            loadingBlock.appendChild(getErrorButton());
-            break;
-        default: 
-            break;
-    }
+function clearLoadigBlock() {
+    loadingBlock.textContent = '';
+}
+
+function setLoadOnLoadingBlock() {
+    loadingBlock.textContent = 'Загрузка...';
+}
+
+function setNotFoundOnLoadingBlock() {
+    loadingBlock.textContent = 'Ничего не найдено';
+}
+
+function setErrorOnLoadingBlock() {
+    loadingBlock.textContent = 'Произошла ошибка при загрузке...';
+    loadingBlock.appendChild(getErrorButton());
+    filterInput.style.display = 'none'
 }
 
 function getErrorButton() {
-    return createElement('button', { text: 'Повторить загрузку' }, { event: 'click', func: onKeyup })
+    return createElement('button', 'Повторить загрузку', { event: 'click', func: onError })
 }
 
-let createElement = function(type, props, listener) {
+function clearResultBlock() {
+    filterResult.textContent = '';
+}
+
+function showInput() {
+    filterInput.style.display = 'block';
+}
+
+function onError() {
+    setLoadingBlock('loading');
+    loadTowns().then(()=> {
+        setLoadingBlock('init');
+        showInput();
+        onKeyup();
+    }).catch(()=> {
+        setLoadingBlock('error');
+    })
+}
+
+function createElement(type, text, listener) {
     let element = document.createElement(type);
 
-    element.textContent = props.text;
+    element.textContent = text;
     if (listener) {
         element.addEventListener(listener.event, listener.func);
     }
@@ -133,26 +159,25 @@ function onKeyup() {
         fragment = document.createDocumentFragment(),
         div;
 
-    loadingBlockState = value ? 'loading' : 'init';
-    setLoadingBlock();
-    filterResult.textContent = '';
+    clearResultBlock();
+    setLoadingBlock(value ? 'loading' : 'init');
     if (value) {
         loadTowns().then(towns => {
             towns.forEach( town => {
                 if (isMatching(town.name, value)) {
-                    div = createElement('div', { text: town.name });
+                    div = createElement('div', town.name);
                     fragment.appendChild(div);
                 }
             });
-
-            loadingBlockState = fragment.children.length === 0 ? 'nothing' : 'init';
+            
+            filterBlock.style.display = 'block';
+            setLoadingBlock(fragment.children.length === 0 ? 'nothing' : 'init');
             filterResult.appendChild(fragment);
         })
-            .catch(loadingBlockState = 'error')
-            .finally(() => {
-                setLoadingBlock();
-            })
-    }
+            .catch(() => {
+                setLoadingBlock('error')
+            })     
+    } 
 }
 
 filterInput.addEventListener('keyup', onKeyup);
