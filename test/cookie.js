@@ -58,7 +58,7 @@ describe('ДЗ 7.2 - Cookie editor', () => {
 
         it('cookie должны добавляться при нажатии на "добавить"', () => {
             let cookies;
-            
+
             addNameInput.value = 'test-cookie-name-1';
             addValueInput.value = 'test-cookie-value-1';
             addButton.click();
@@ -71,7 +71,7 @@ describe('ДЗ 7.2 - Cookie editor', () => {
             addNameInput.value = 'test-cookie-name-2';
             addValueInput.value = 'test-cookie-value-2';
             addButton.click();
-        
+
             cookies = getCookies();
             assert(cookies.hasOwnProperty(addNameInput.value), 'cookie не добавлена в барузер');
             assert.equal(cookies[addNameInput.value], addValueInput.value, 'cookie не добавлена в барузер');
@@ -102,7 +102,7 @@ describe('ДЗ 7.2 - Cookie editor', () => {
         it('если при добавлении указано имя существующей cookie, то в таблице должно быть изменено ее значение', () => {
             let rows;
             let changedRow;
-         
+
             addNameInput.value = 'test-cookie-name-1';
             addValueInput.value = 'test-cookie-value-1';
             addButton.click();
@@ -196,7 +196,7 @@ describe('ДЗ 7.2 - Cookie editor', () => {
 
             it('не добавлять cookie в таблицу, если значение cookie не соответствует фильтру', () => {
                 let cookies;
-                debugger;
+
                 addNameInput.value = 'test-cookie-name-1';
                 addValueInput.value = 'test-cookie-value-1';
                 addButton.click();
