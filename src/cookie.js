@@ -43,93 +43,181 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-filterNameInput.addEventListener('keyup', filterCookies);
+let Cookies = function() {
+    let cookies = [];
+    let id = 1;
 
-function filterCookies(event) {
-    let value = event.target.value;
+    return {
+        addCookie: function(cookie) {
+            cookies.push(cookie);
+            document.cookie = `${cookie.name}=${cookie.value}`;
+        },
 
-    for (let i=0; i< listTable.children.length; i++) {
-        let row = listTable.children[i];
+        deleteCookie: function(id) {
+            let name = this.getCookieById(id).name;
+            let index = this.getCookieIndex(name);
 
-        if (row.children[0].textContent.indexOf(value)>-1 || row.children[1].textContent.indexOf(value)>-1) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none'
+            if (index >= 0) {
+                document.cookie = `${cookies[index].name}=${cookies[index].value}; expires=${new Date(0).toUTCString()};`;
+                cookies.splice(index, 1);
+            }
+        },
+
+        updateCookie: function(cookie) {
+            let name = cookie.name,
+                index = this.getCookieIndex(name);
+
+            if (index >=0) {
+                cookies[index].value = cookie.value;
+                document.cookie = `${cookie.name}=${cookie.value};`;
+            }
+        },
+
+        hasName: function(name) {
+            return cookies.some((el) => {
+                return el.name === name;
+            })
+        },
+
+        getAllCookies: function() {
+            return cookies;
+        },
+
+        getCookieIndex: function(name) {
+            for (let i=0; i < cookies.length; i++) {
+                if (cookies[i].name === name) {
+                    return i;
+                }
+            }
+
+            return null
+        },
+
+        getCookieById: function(id) {
+            for (let i=0; i < cookies.length; i++) {
+                if (cookies[i].id == id) {
+                    return cookies[i];
+                }
+            }
+        },
+
+        getCookieByName: function(name) {
+            return cookies[this.getCookieIndex(name)]
+        },
+
+        getId: function() {
+            return ++id;
+        },
+
+        clearAllCookies: function() {
+            cookies = [];
         }
     }
-}
+}()
 
-let cookies = [];
+addButton.addEventListener('click', onAddCookieClick);
+filterNameInput.addEventListener('keyup', onFilterKeyup);
 
-addButton.addEventListener('click', () => {
-    let name = addNameInput.value,
-        value = addValueInput.value, 
-        id = Math.floor(Math.random()*new Date().getTime().toString());
-       
-    if (nameMatch(name, value)) {
-
+function onAddCookieClick() {
+    let cookie = {
+        name: addNameInput.value,
+        value: addValueInput.value, 
     }
-    document.cookie = `${name}=${value}`;
-    cookies.push({
-        name: name,
-        value: value,
-        id: id
-    });
-   
-    listTable.appendChild(createRow(name, value, id));
-  
-});
 
-
-
-function nameMatch(name) {
-    return cookies.some( el => {
-        el.name === name
-    })
+// При выполнении тестов каждый раз куки и таблица очищаются, а вот инкапсулированный масиив кук - нет, поэтому проверяем
+    checkCookie();
+    if (Cookies.hasName(cookie.name)) {
+        update(cookie);
+    } else {
+        add(cookie);
+    }
 }
 
-let createRow = function(name, value, id) {
-    let tr = document.createElement('tr'),
-        tdName = document.createElement('td'),  
-        tdValue = document.createElement('td'),
-        tdDelete = document.createElement('td'),
-        buttonDelete = document.createElement('button');
+function checkCookie() {
+    if (!document.cookie) {
+        Cookies.clearAllCookies();
+    }
+}
 
-    buttonDelete.textContent = 'Del';
-    tdDelete.appendChild(buttonDelete);
-    tdName.textContent = name;
-    tdValue.textContent = value;
+function update(cookie) {
+    let id = Cookies.getCookieByName(cookie.name).id;
+    let tr = document.getElementById(id),
+        filter = filterNameInput.value;
 
-    buttonDelete.addEventListener('click', deleteCookieAndRow);
+    if (tr) {
+        tr.children[1].textContent = cookie.value;
 
+        if (filter && (!cookie.name.indexOf(filter) > -1 && !cookie.value.indexOf(filter)) > -1) {
+            listTable.removeChild(tr);
+        } 
+
+        Cookies.updateCookie(cookie);
+    }
+}
+
+function add(cookie) {
+    let id = Cookies.getId(),
+        filter = filterNameInput.value,
+        row;
+
+    cookie.id = id;
+    Cookies.addCookie(cookie);
+    row = createRow(cookie);
+
+    if (filter) {
+        if (cookie.name.indexOf(filter) > -1 || cookie.value.indexOf(filter) >-1) {
+            listTable.appendChild(row);
+        } 
+    } else {
+        listTable.appendChild(row);
+    }
+}
+
+function createRow(cookie) {
+    let tr = createEl('tr'),
+        tdName = createEl('td', cookie.name),
+        tdValue = createEl('td', cookie.value),
+        tdDelete = createEl('td'),
+        tdButton = createEl('button', 'Delete', { name: 'click', func: onDeleteButtonClick });
+    
+    tdDelete.appendChild(tdButton);
+    tr.id = cookie.id;
     tr.appendChild(tdName);
     tr.appendChild(tdValue);
     tr.appendChild(tdDelete);
-    tr.id = id;
 
-    return tr;
+    return tr
 }
 
-function getRow(id) {
-    return document.getElementById(id)
-}
+function createEl(tag, text, event) {
+    let el = document.createElement(tag);
 
-function deleteCookieAndRow(id) {
-
-    if (id.target) {
-        id = id.target.parentNode.parentNode.id;
+    if (text) {
+        el.textContent = text;
     }
 
-    cookies.forEach( (el, i) => {
-  
-        if (el.id == id) {
-            let tr = getRow(el.id);
+    if (event) {
+        el.addEventListener(event.name, event.func);
+    }
 
-            listTable.removeChild(tr);
+    return el
+}
 
-            document.cookie = `${el.name}=${el.value}; expires=${new Date(0).toUTCString()};`;
-            cookies.splice(i, 1);
+function onDeleteButtonClick() {
+    let tr = event.target.parentNode.parentNode;
 
+    Cookies.deleteCookie(tr.id);
+    listTable.removeChild(tr); 
+}
+
+function onFilterKeyup(event) {
+    let value = event.target.value,
+        cookies = Cookies.getAllCookies();
+
+    listTable.textContent = '';
+    for (let i=0; i< cookies.length; i++) {
+        if (cookies[i].name.indexOf(value) >-1 || cookies[i].value.indexOf(value) >-1) {
+            listTable.appendChild(createRow(cookies[i]));
         }
-    })
+    }
 }
