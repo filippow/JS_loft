@@ -43,10 +43,181 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-filterNameInput.addEventListener('keyup', function() {
-    // здесь можно обработать нажатия на клавиши внутри текстового поля для фильтрации cookie
-});
+let Cookies = function() {
+    let cookies = [];
+    let id = 1;
 
-addButton.addEventListener('click', () => {
-    // здесь можно обработать нажатие на кнопку "добавить cookie"
-});
+    return {
+        addCookie: function(cookie) {
+            cookies.push(cookie);
+            document.cookie = `${cookie.name}=${cookie.value}`;
+        },
+
+        deleteCookie: function(id) {
+            let name = this.getCookieById(id).name;
+            let index = this.getCookieIndex(name);
+
+            if (index >= 0) {
+                document.cookie = `${cookies[index].name}=${cookies[index].value}; expires=${new Date(0).toUTCString()};`;
+                cookies.splice(index, 1);
+            }
+        },
+
+        updateCookie: function(cookie) {
+            let name = cookie.name,
+                index = this.getCookieIndex(name);
+
+            if (index >=0) {
+                cookies[index].value = cookie.value;
+                document.cookie = `${cookie.name}=${cookie.value};`;
+            }
+        },
+
+        hasName: function(name) {
+            return cookies.some((el) => {
+                return el.name === name;
+            })
+        },
+
+        getAllCookies: function() {
+            return cookies;
+        },
+
+        getCookieIndex: function(name) {
+            for (let i=0; i < cookies.length; i++) {
+                if (cookies[i].name === name) {
+                    return i;
+                }
+            }
+
+            return null
+        },
+
+        getCookieById: function(id) {
+            for (let i=0; i < cookies.length; i++) {
+                if (cookies[i].id == id) {
+                    return cookies[i];
+                }
+            }
+        },
+
+        getCookieByName: function(name) {
+            return cookies[this.getCookieIndex(name)]
+        },
+
+        getId: function() {
+            return ++id;
+        },
+
+        clearAllCookies: function() {
+            cookies = [];
+        }
+    }
+}()
+
+addButton.addEventListener('click', onAddCookieClick);
+filterNameInput.addEventListener('keyup', onFilterKeyup);
+
+function onAddCookieClick() {
+    let cookie = {
+        name: addNameInput.value,
+        value: addValueInput.value, 
+    }
+
+// При выполнении тестов каждый раз куки и таблица очищаются, а вот инкапсулированный масиив кук - нет, поэтому проверяем
+    checkCookie();
+    if (Cookies.hasName(cookie.name)) {
+        update(cookie);
+    } else {
+        add(cookie);
+    }
+}
+
+function checkCookie() {
+    if (!document.cookie) {
+        Cookies.clearAllCookies();
+    }
+}
+
+function update(cookie) {
+    let id = Cookies.getCookieByName(cookie.name).id;
+    let tr = document.getElementById(id),
+        filter = filterNameInput.value;
+
+    if (tr) {
+        tr.children[1].textContent = cookie.value;
+
+        if (filter && (!cookie.name.indexOf(filter) > -1 && !cookie.value.indexOf(filter)) > -1) {
+            listTable.removeChild(tr);
+        } 
+
+        Cookies.updateCookie(cookie);
+    }
+}
+
+function add(cookie) {
+    let id = Cookies.getId(),
+        filter = filterNameInput.value,
+        row;
+
+    cookie.id = id;
+    Cookies.addCookie(cookie);
+    row = createRow(cookie);
+
+    if (filter) {
+        if (cookie.name.indexOf(filter) > -1 || cookie.value.indexOf(filter) >-1) {
+            listTable.appendChild(row);
+        } 
+    } else {
+        listTable.appendChild(row);
+    }
+}
+
+function createRow(cookie) {
+    let tr = createEl('tr'),
+        tdName = createEl('td', cookie.name),
+        tdValue = createEl('td', cookie.value),
+        tdDelete = createEl('td'),
+        tdButton = createEl('button', 'Delete', { name: 'click', func: onDeleteButtonClick });
+    
+    tdDelete.appendChild(tdButton);
+    tr.id = cookie.id;
+    tr.appendChild(tdName);
+    tr.appendChild(tdValue);
+    tr.appendChild(tdDelete);
+
+    return tr
+}
+
+function createEl(tag, text, event) {
+    let el = document.createElement(tag);
+
+    if (text) {
+        el.textContent = text;
+    }
+
+    if (event) {
+        el.addEventListener(event.name, event.func);
+    }
+
+    return el
+}
+
+function onDeleteButtonClick() {
+    let tr = event.target.parentNode.parentNode;
+
+    Cookies.deleteCookie(tr.id);
+    listTable.removeChild(tr); 
+}
+
+function onFilterKeyup(event) {
+    let value = event.target.value,
+        cookies = Cookies.getAllCookies();
+
+    listTable.textContent = '';
+    for (let i=0; i< cookies.length; i++) {
+        if (cookies[i].name.indexOf(value) >-1 || cookies[i].value.indexOf(value) >-1) {
+            listTable.appendChild(createRow(cookies[i]));
+        }
+    }
+}
