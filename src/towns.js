@@ -1,3 +1,5 @@
+var obj = require('./index.js');
+var compareFunc = obj.compareFunc;
 /*
  Страница должна предварительно загрузить список городов из
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
@@ -41,14 +43,6 @@ function loadTowns() {
         var xhr = new XMLHttpRequest(),
             towns = [];
 
-        function compareFunc(a, b) {
-            a = a.name.toLowerCase();
-            b = b.name.toLowerCase();
-
-            return a > b ? 1 : (a < b ? -1 : 0)
-        }
-        // debugger;
-        setLoadingBlock('loading');
         xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json', true);
         xhr.send();
        
@@ -58,7 +52,7 @@ function loadTowns() {
             }
 
             if (xhr.status != 200) {
-                reject();
+                reject(xhr.status);
             } else {
                 towns = JSON.parse(xhr.responseText).sort(compareFunc);
                 resolve(towns); 
@@ -67,29 +61,85 @@ function loadTowns() {
     })
 }
 
-/*
- Функция должна проверять встречается ли подстрока chunk в строке full
- Проверка должна происходить без учета регистра символов
-
- Пример:
-   isMatching('Moscow', 'moscow') // true
-   isMatching('Moscow', 'mosc') // true
-   isMatching('Moscow', 'cow') // true
-   isMatching('Moscow', 'SCO') // true
-   isMatching('Moscow', 'Moscov') // false
- */
 function isMatching(full, chunk) {
     return full.toLowerCase().indexOf(chunk.toLowerCase()) > -1
 }
 
-/* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
-// /* Блок с текстовым полем и результатом поиска */
 const filterBlock = homeworkContainer.querySelector('#filter-block');
-// /* Текстовое поле для поиска по городам */
 const filterInput = homeworkContainer.querySelector('#filter-input');
-// /* Блок с результатами поиска */ 
 const filterResult = homeworkContainer.querySelector('#filter-result');
+
+let Towns = function() {
+    let towns = [];
+
+    return {
+        setAll: function(arr) {
+            towns = arr;
+        },
+
+        getAll: function() {
+            return towns
+        }
+    }
+}();
+
+function start() {
+    filterInput.addEventListener('keyup', onKeyup);
+    setLoadingBlock('loading');
+    loadTowns().then(towns => {
+        setLoadingBlock('init');
+        Towns.setAll(towns);
+        showInput();
+    }).catch( err => {
+        setLoadingBlock('error');
+    })
+}
+
+start();
+
+function onKeyup() {
+    let towns = Towns.getAll(),
+        fragment = document.createDocumentFragment(),
+        value = filterInput.value,
+        div;
+
+    clearResultBlock();
+    if (value && towns.length != 0) {
+        towns.forEach(town => {
+            if (isMatching(town.name, value)) {
+                div = createElement('div', town.name);
+                fragment.appendChild(div);
+            }
+        })
+
+        setLoadingBlock(fragment.children.length === 0 ? 'nothing' : 'init');
+        filterResult.appendChild(fragment);
+    } 
+}
+
+function onError() {
+    setLoadingBlock('loading');
+    loadTowns().then((towns)=> {
+        Towns.setAll(towns);
+        setLoadingBlock('init');
+        showInput();
+        onKeyup();
+    }).catch(()=> {
+        setLoadingBlock('error');
+    })
+}
+
+function createElement(type, text, listener) {
+    let element = document.createElement(type);
+
+    element.textContent = text;
+    if (listener) {
+        element.addEventListener(listener.event, listener.func);
+    }
+  
+    return element;
+}
 
 function setLoadingBlock(loadingBlockState) {
     let obj = {
@@ -129,58 +179,9 @@ function clearResultBlock() {
 }
 
 function showInput() {
+    filterBlock.style.display = 'block';
     filterInput.style.display = 'block';
 }
-
-function onError() {
-    setLoadingBlock('loading');
-    loadTowns().then(()=> {
-        setLoadingBlock('init');
-        showInput();
-        onKeyup();
-    }).catch(()=> {
-        setLoadingBlock('error');
-    })
-}
-
-function createElement(type, text, listener) {
-    let element = document.createElement(type);
-
-    element.textContent = text;
-    if (listener) {
-        element.addEventListener(listener.event, listener.func);
-    }
-  
-    return element;
-}
-
-function onKeyup() {
-    let value = filterInput.value,
-        fragment = document.createDocumentFragment(),
-        div;
-
-    clearResultBlock();
-    setLoadingBlock(value ? 'loading' : 'init');
-    if (value) {
-        loadTowns().then(towns => {
-            towns.forEach( town => {
-                if (isMatching(town.name, value)) {
-                    div = createElement('div', town.name);
-                    fragment.appendChild(div);
-                }
-            });
-            
-            filterBlock.style.display = 'block';
-            setLoadingBlock(fragment.children.length === 0 ? 'nothing' : 'init');
-            filterResult.appendChild(fragment);
-        })
-            .catch(() => {
-                setLoadingBlock('error')
-            })     
-    } 
-}
-
-filterInput.addEventListener('keyup', onKeyup);
 
 export {
     loadTowns,

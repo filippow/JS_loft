@@ -58,5 +58,6 @@ function loadAndSortTowns() {
 
 export {
     delayPromise,
-    loadAndSortTowns
+    loadAndSortTowns,
+    compareFunc
 };
