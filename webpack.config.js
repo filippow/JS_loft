@@ -2,44 +2,42 @@ let webpack = require('webpack');
 let HtmlPlugin = require('html-webpack-plugin');
 let CleanWebpackPlugin = require('clean-webpack-plugin');
 let ExtractTextPlugin = require('extract-text-webpack-plugin');
-let rules = require('./webpack.config.rules')();
+let loaders = require('./webpack.config.loaders')();
 let path = require('path');
 
-rules.push({
-    test: /\.css$/,
-    use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: 'css-loader'
+loaders.push({
+    test: /\.scss$/,
+    loader: ExtractTextPlugin.extract({
+        use: [{
+            loader: "css-loader"
+        }, {
+            loader: "sass-loader"
+        }],
+        fallback: "style-loader"
     })
 });
 
 module.exports = {
-    entry: {
-        cookie: './src/cookie.js'
-    },
-    devServer: {
-        index: 'cookie.html'
-    },
+    entry: './src/js/index.js',
     output: {
-        filename: '[name].[hash].js',
+        filename: '[name].js',
         path: path.resolve('dist')
     },
     devtool: 'source-map',
-    module: { rules },
+    module: {
+        loaders
+    },
     plugins: [
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
             compress: {
-                drop_debugger: false,
-                warnings: false
+                drop_debugger: false
             }
         }),
         new ExtractTextPlugin('styles.css'),
         new HtmlPlugin({
-            title: 'Cookies',
-            template: 'cookie.hbs',
-            filename: 'cookie.html',
-            chunks: ['cookie']
+            title: 'Friends filter',
+            template: './src/template/index.hbs'
         }),
         new CleanWebpackPlugin(['dist'])
     ]
