@@ -1,9 +1,9 @@
-import Model from './MVC/model.js';
-import View from './MVC/view.js';
-import Controller from './MVC/controller.js';
+import Model from './MVC/model';
+import View from './MVC/view';
+import Controller from './MVC/controller';
 
-import DragAndDrop from './modules/dragAndDrop.js';
-import apiVK from './modules/vkApi..js';
+import DragAndDrop from './modules/dragAndDrop';
+import apiVK from './modules/vkApi';
 
 let vk = new apiVK();
 let model = new Model();
