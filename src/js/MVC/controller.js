@@ -1,14 +1,14 @@
 export default class Controller {
     constructor(apiVK) {
+        this.version = '5.8'
         this.apiVK = apiVK;
     }
 
     init(view, model) {
-        this.version = '5.8'
         this.view = view;
         this.model = model;
 
-        this.apiVK.auth(this.initListsFromVKapi.bind(this));
+        this.model.getFriends(this.initListsFromVKapi.bind(this))
     }
 
     setStorage() {
@@ -16,10 +16,11 @@ export default class Controller {
     }
 
     initListsFromVKapi(fromServer) {
-        if (fromServer) {
-            this.initFriendsList(fromServer);
+        if (window.localStorage.getItem('left')) {
+            this.initFriendsList(...this.model.compareFriends(fromServer));
         } else {
-            this.initFriendsList(this.model.getStorage().left, this.model.getStorage().right);
+            this.model.setFriendsList(fromServer);
+            this.initFriendsList(fromServer);
         }
     }
 
@@ -59,12 +60,10 @@ export default class Controller {
     }
 
     initFriendsList(left, right) {
-        this.view.render(left, this.view.leftContainer);          
-        this.model.leftFriends = left;
-          
+        this.view.render(left, this.view.leftContainer);      
+        
         if (right) {
             this.view.render(right, this.view.rightContainer);
-            this.model.rightFriends = right
         }
     }
 }

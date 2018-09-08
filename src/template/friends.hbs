@@ -1,0 +1,14 @@
+    {{#each friends}}
+        <div class="friend" id={{id}}>
+        <img src={{photo_50}} class='photo'>
+        <span>{{first_name}} {{last_name}}</span>
+        <span class='cross'>
+            {{#if cross}}
+                <i class = 'fas fa-times-circle'></i>
+            {{else}}
+                <i class = 'fas fa-plus'></i>
+            {{/if}}
+            
+        </span>
+        </div>
+    {{/each}}

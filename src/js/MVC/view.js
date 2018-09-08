@@ -1,3 +1,5 @@
+import tpl from '../../template/friends.hbs';
+
 export default class View {
     constructor(model, controller, dgd) {
         this.model = model;
@@ -28,9 +30,9 @@ export default class View {
         this.controller.onFriendTransfer(target);
     }
 
-    render(friends, container) {
-        let Handlebars = Handlebars;
-        
-        container.innerHTML = Handlebars.compile(document.getElementById('friend').innerHTML)({ friends: friends })
+    render(friends, container) { 
+        var result = tpl({ friends: friends });
+            
+        container.innerHTML = result;
     } 
 }
