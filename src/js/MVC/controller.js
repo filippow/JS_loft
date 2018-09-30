@@ -1,69 +1,117 @@
 export default class Controller {
-    constructor(apiVK) {
-        this.version = '5.8'
-        this.apiVK = apiVK;
-    }
-
-    init(view, model) {
-        this.view = view;
+    constructor(model, view, yandexMap) {
         this.model = model;
+        this.view = view;
+        this.yandexMap = yandexMap;
+        this.frame = document.querySelector('.frame');
+        this.temporaryAdress = {};
 
-        this.model.getFriends(this.initListsFromVKapi.bind(this))
-    }
-
-    setStorage() {
-        this.model.setStorage();
-    }
-
-    initListsFromVKapi(fromServer) {
-        if (window.localStorage.getItem('left')) {
-            this.initFriendsList(...this.model.compareFriends(fromServer));
-        } else {
-            this.model.setFriendsList(fromServer);
-            this.initFriendsList(fromServer);
-        }
-    }
-
-    onKeyUp(target) {
-        let isContain = target.classList.contains('leftSearch'),
-            friends = this.model[isContain ? 'leftFriends' : 'rightFriends'],
-            container = this.view[isContain? 'leftContainer' : 'rightContainer'],
-            value = target.value.toLowerCase(),
-            newArr = [];
-
-        friends.forEach(el => {
-            if (el.first_name.toLowerCase().indexOf(value) > -1 || el.last_name.toLowerCase().indexOf(value) > -1) {
-                newArr.push(el);
-            }
+        yandexMap.initMap().then( map=> {
+            map.events.add('click', this.onMapClick.bind(this));
+            this.init();
         });
 
-        this.view.render(newArr, container);
+        document.querySelector('.close').addEventListener('click', this.onCloseButtonClick.bind(this));
+        document.querySelector('.add_button').addEventListener('click', this.onAddButtonClick.bind(this));
+        document.body.addEventListener('click', this.onReferenceClick.bind(this))
     }
 
-    onFriendTransfer(target) {
-        if (target.classList.contains('fas')) {
-            this.model.transfer(target.closest('.friend').id);
-            this.initFriendsList(this.model.leftFriends, this.model.rightFriends);
-            this.changeIcon(target.closest('.friend').id);
+    init() {
+        if (localStorage.length > 0 && localStorage.getItem('data')) {
+            let data = JSON.parse(localStorage.getItem('data')).data;
+
+            this.model.data = data;
+
+            for (let i=0; i<data.length; i++) {
+                for (let j=0; j<data[i].feedbacks.length; j++) {
+                    let feedback = data[i].feedbacks[j];
+
+                    this.yandexMap.addGeoObject(
+                        feedback, 
+                        this.onPlacemarkClick.bind(this), 
+                        this.view.getBaloonContent(feedback)
+                    );
+                }
+            }
         }
     }
 
-    appendData(item) {
-        this.model.transfer(item.id);
-        this.controller.changeIcon(item.id);
-    }
-
-    changeIcon(id) {
-        var elem = document.getElementById(id).querySelector('.fas');
-
-        elem.classList = elem.closest('.rightBar_container') ? 'fas fa-times-circle' : 'fas fa-plus';
-    }
-
-    initFriendsList(left, right) {
-        this.view.render(left, this.view.leftContainer);      
+    async onMapClick(event) {
+        let adress = await this.yandexMap.getAdress(event);
         
-        if (right) {
-            this.view.render(right, this.view.rightContainer);
+        this.temporaryAdress = adress;
+        this.view.renderModal(adress);
+    }
+
+    onAddButtonClick() {
+        let feedback = this.getFeedback(),
+            review = this.model.addReview(feedback);
+
+        this.view.renderModal(review);
+        this.yandexMap.addGeoObject(
+            feedback, 
+            this.onPlacemarkClick.bind(this), 
+            this.view.getBaloonContent(feedback)
+        );
+    }
+
+    getFeedback() {
+        let inputs = this.frame.querySelector('.form').children;
+
+        return {
+            name: inputs[0].value,
+            target_place: inputs[1].value,
+            impression: inputs[2].value,
+            adress: this.temporaryAdress.adress,
+            coords: this.temporaryAdress.coords.slice()
+        };
+    }
+
+    onCloseButtonClick() {
+        this.view.closeModal();
+    }
+
+    onReferenceClick({target}) {
+        if (target.parentNode.classList.contains('menu-arrow')) {
+            this.view.changeMenu(target);
+        } else if (target.classList.contains('menu_button')){
+            this.onStorageButtonsClick(target);
+        } else if (target.dataset.link) {
+            this.showModal(target.dataset.link)
         }
+    }
+
+    onPlacemarkClick(event) {
+        this.showModal(event.get('target').properties.get('review_id'));
+    }
+
+    showModal(id) {
+        if (id) {
+            let review = this.model.getReviewById(id);
+            this.view.renderModal(this.model.getReviewById(id));
+        
+            this.temporaryAdress = {
+                adress: review.adress,
+                coords: review.coords
+            }
+        }
+    }
+    
+    onStorageButtonsClick(element) {
+        if (element.classList.contains('menu_button-save')) {
+            this.saveToLS();
+        } else if (element.classList.contains('menu_button-delete')) {
+            this.clearLS()
+        }
+    }
+
+    saveToLS() {
+        localStorage.setItem('data', JSON.stringify({data: this.model.data}));
+    }
+
+    clearLS() {
+        localStorage.clear();
+        this.model.data = [];
+        this.yandexMap.clusterer.removeAll();
     }
 }

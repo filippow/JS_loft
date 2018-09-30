@@ -1,14 +1,10 @@
 import '../css/main.scss';
-import Model from './MVC/model';
-import View from './MVC/view';
-import Controller from './MVC/controller';
+import Model from './MVC/model.js';
+import View from './MVC/view.js';
+import Controller from './MVC/controller.js';
+import yandexMap from './modules/yandexMap.js';
 
-import DragAndDrop from './modules/dragAndDrop';
-import apiVK from './modules/vkApi';
-
-let vk = new apiVK();
-let model = new Model(vk);
-let controller = new Controller();
-let view = new View(model, controller, DragAndDrop);
-
-controller.init(view, model);
+let map = new yandexMap();
+let model = new Model();
+let view = new View();
+let controller = new Controller(model, view, map);

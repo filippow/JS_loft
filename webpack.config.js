@@ -36,7 +36,7 @@ module.exports = {
         }),
         new ExtractTextPlugin('styles.css'),
         new HtmlPlugin({
-            title: 'Friends filter',
+            title: 'Geofeedback',
             template: './src/template/index.hbs'
         }),
         new CleanWebpackPlugin(['dist'])

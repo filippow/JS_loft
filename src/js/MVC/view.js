@@ -1,38 +1,75 @@
-import tpl from '../../template/friends.hbs';
+import tpl from '../../template/feedback.hbs';
+import baloonContent from '../../template/baloonContent.hbs';
 
 export default class View {
-    constructor(model, controller, dgd) {
-        this.model = model;
-        this.controller = controller;
-        this.leftContainer = document.querySelector('.leftBar_container');
-        this.rightContainer = document.querySelector('.rightBar_container');
-          
-        dgd(this.leftContainer, this.rightContainer, this.controller.appendData.bind(this));
-        this.addListeners();
+    constructor() {
+        this.modal = document.querySelector('.frame');       
+    }
+ 
+    closeModal() {
+        this.modal.style.width = 0;
     }
 
-    addListeners() {
-        document.querySelector('.leftSearch').addEventListener('keyup', this.onKeyup.bind(this));
-        document.querySelector('.rightSearch').addEventListener('keyup', this.onKeyup.bind(this));
-        document.querySelector('.save').addEventListener('click', this.onSaveInfo.bind(this));
-        document.addEventListener('click', this.onFriendTransfer.bind(this));
+    renderModal(data) {
+        let html = 'Отзывов пока что нет...';
+
+        if (data.feedbacks && data.feedbacks.length > 0) {
+            html = '';
+            for (let i=0; i< data.feedbacks.length; i++) {
+                html += tpl(data.feedbacks[i]);
+            }
+        }
+
+        this.clearValue();
+        this.modal.style.width = '400px';
+        this.modal.querySelector('.content').innerHTML = html;
+        this.modal.querySelector('.adress').textContent = data.adress;
     }
 
-    onSaveInfo() {
-        this.controller.setStorage();
+    clearValue() {
+        let inputs = document.querySelector('.form').children;
+
+        inputs[0].value = '';
+        inputs[1].value = '';
+        inputs[2].value = '';
     }
 
-    onKeyup({ target }) {
-        this.controller.onKeyUp(target);
+    getBaloonContent(feedback) {
+        return baloonContent(feedback);
     }
 
-    onFriendTransfer({ target }) {
-        this.controller.onFriendTransfer(target);
-    }
+    changeMenu(element) {
+        let visibility, classList, buttons;
 
-    render(friends, container) { 
-        var result = tpl({ friends: friends });
-            
-        container.innerHTML = result;
-    } 
+        if (element.classList.contains('fa-arrow-left')) {
+            classList = 'fas fa-arrow-right';
+            visibility = 'none';
+        } else {
+            classList = 'fas fa-arrow-left';
+            visibility = 'block';
+        }
+
+        element.classList = classList;
+        buttons = document.querySelectorAll('.menu_button');
+        buttons[0].style.display = visibility;
+        buttons[1].style.display = visibility;
+    }
 }
+
+/**
+ * Структура данных отзыва (review)
+ * {
+ *  adress: 'string'
+ *  coords: 'array'
+ *  id: 'number'
+ *  feedbacks: [
+ *      {
+ *          name: inputs[0].value,
+ *          target_place: inputs[1].value,
+ *          impression: inputs[2].value,
+ *          id_review: 'number' 
+ *          date: 'datetime'      
+ *      }
+ *  ]
+ * }
+ */

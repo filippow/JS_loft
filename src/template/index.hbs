@@ -6,51 +6,60 @@
     <title>{{htmlWebpackPlugin.options.title}}</title>
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js' ></script>
-    <script src="https://vk.com/js/api/openapi.js?159" type="text/javascript"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js'></script>
 </head>
 
 <body>
-        <div id="app">
-        <div class='header'>Выберите друзей</div>
-        <div class='container'>
-            <div class='leftBar'>
-                <div class="search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class='leftSearch'></input>
-                </div>
-                <div class="leftBar_container"></div>
+       <div class='menu'>
+        <span class='menu-arrow'>
+            <i class="fas fa-arrow-left"></i>
+        </span>
+        <span class='menu_button menu_button-save'>Сохранить отзывы</span>
+        <span class='menu_button menu_button-delete'>Удалить все отзывы</span>
+    </div>
+    <div id="map" ></div>
+    <div class="frame">
+        <div class='header'>
+            <div class='marker'>
+                <span class="fas fa-map-marker-alt"></span>
             </div>
-            <div class='rightBar'>
-                <div class="search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class='rightSearch'>
-                </div>
-                <div class="rightBar_container"></div>
-            </div>  
+            <span class='adress'></span>
+            <div class='close'>
+                <span class="far fa-times-circle"></span>
+            </div>
         </div>
-        <div class="footer">
-            <button class='save'>СОХРАНИТЬ</button>
+        <div class='content'></div>
+        <div class='footer'>
+            <div class='footer_title'>ВАШ ОТЗЫВ</div>
+            <div class='form'>
+                <input class='input_name footer_input' type='text' placeholder='Ваше имя'>
+                <input class='input_place footer_input' type='text' placeholder='Укажите место'>
+                <textarea class='input_impression footer_input' placeholder='Ваши впечатления'></textarea>
+                <div class='add'>
+                    <button class='add_button'>Добавить</button>
+                </div>
+            </div>
         </div>
     </div>
 
-{{!-- 
-    <script id="friend" type="text/x-handlebars-template">
-        {{#each friends}}
-            <div class="friend" id={{id}}>
-            <img src={{photo_50}} class='photo'>
-            <span>{{first_name}} {{last_name}}</span>
-            <span class='cross'>
-                {{#if cross}}
-                    <i class = 'fas fa-times-circle'></i>
-                {{else}}
-                    <i class = 'fas fa-plus'></i>
-                {{/if}}
-                
-            </span>
+    <script id="review" type="text/x-handlebars-template">
+        <div class='person'>
+                <span class='name'>{{name}}:</span>
+                <span class='target'>{{target_place}}</span> 
+                <div class='impression'>{{impression}}</div>
+                <div class='date_container'>
+                    <span class='date'>{{date}}</span> 
+                </div>
             </div>
-        {{/each}}
-      </script> --}}
+    </script>
+
+    <script id="baloonContent" type="text/x-handlebars-template">
+        <div>
+            <div class='place' data-link='{{review_id}}'>{{adress}}</div>  
+            <div class='impression'>{{impression}}</div>       
+        </div>
+    </script>
 
 </body>
 
