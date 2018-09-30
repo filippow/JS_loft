@@ -1,0 +1,183 @@
+#map {
+    width: 100vw;
+    height: 100vh;
+}
+body {
+    margin: 0;
+    background: lightgray;
+}
+
+.menu {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    height: 60px;
+    background: rgb(93, 183, 199);
+    opacity: 0.8;
+    padding:10px;
+    border-radius: 0 0 15px 0;
+    transition-duration: 300ms;
+}
+
+.menu-arrow {
+    width: 40px;
+    height: 100%;
+    font-size: 30px;
+    cursor: pointer;
+    transition-duration: 400ms;
+}
+
+.menu-arrow i {
+    display: block;
+    margin-top: 35%;
+    height: 100%;
+}
+
+.menu-arrow:hover {
+    transition-duration: 400ms;
+    transform: scale(1.1);
+}
+
+.menu_button {
+    transition-duration: 300ms;
+    border: 1px solid orange;
+    font-size: 20px;
+    height: 30px;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.menu_button:hover {
+    background: orange;
+}
+
+.arrow {
+    font-size: 30px;
+    color: white;
+    display: block;
+}
+
+.frame {
+    width: 0;
+    position: absolute;
+    top: 20%;
+    left: 0;
+    // width: 400px;
+    background: white;
+    height: auto;
+    border-radius: 15px;
+    transition-duration: 500ms;
+    overflow: hidden;
+}
+.header {
+    display:flex;
+    box-sizing: border-box;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    width:100%;
+    height:40px;
+    background: orange;
+    border-radius: 15px 15px 0 0;
+    padding: 10px 10px 10px 20px;
+    
+}
+.marker {
+    padding-right: 10px;
+    font-size: 25px;
+}
+
+.close {
+    width: 30px;
+    height: 30px;
+    font-size:25px;
+    display: inline-block;
+    margin-left: auto;
+    transition-duration: 300ms;
+}
+.close:hover {
+    transform: scale(1.1);
+    transition-duration: 300ms;
+    cursor:pointer;
+}
+
+.content {
+    width:100%;
+    height: 300px;
+    
+    overflow-y: auto;
+}
+.person {
+    font-size: 20px;
+    margin: 10px 10px 20px 10px;
+}
+.name {
+    font-weight: bold;
+}
+.footer {
+    padding: 10px;
+    height:300px;
+}
+.footer_title {
+    font-size: 20px;
+    color: orange;
+    font-weight: bold;
+}
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer_input {
+    border-radius: 10px;
+    height: 25px;
+    margin: 10px;
+    border: 1px solid gray;
+    outline: none;
+    padding-left: 10px;
+    font-size: 18px;
+}
+
+.input_impression {
+    height: 100px;
+}
+
+.date_container { 
+    display:flex;
+}
+.date {
+    margin-left: auto;
+    font-size: 16px;
+}
+
+.add {
+    margin-left:auto;
+}
+.add_button {
+    border-radius: 10px;
+    border: none;
+    color: white;
+    font-size: 19px;
+    height: 40px;
+    width: 100px;
+    background: orange;
+    margin-right:10px;
+    cursor: pointer;
+}
+
+.impression {
+    font-size: 16px;
+}
+.place {
+    font-size: 16px;
+    color: blue;
+    cursor: pointer
+}
+.place:hover {
+    text-decoration: underline;
+}
