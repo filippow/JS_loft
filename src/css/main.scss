@@ -1,0 +1,114 @@
+#app {
+    background: #f9f3f3;
+    width:1200px;
+    height:700px;
+    margin: 30px auto;
+    border-radius: 15px;
+}
+
+.header {
+    box-sizing: border-box;
+    width:100%;
+    height: 50px;
+    background:orange;
+    border-radius: 15px 15px 0 0;
+    padding: 5px 0px 5px 20px;
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.container {
+    display: flex;
+}
+
+.leftBar, .rightBar {
+    flex: 1;
+    overflow-y: scroll;
+    max-height:630px;
+}
+.rightBar_container, .leftBar_container {
+    min-height: 575px;
+}
+.friend:hover  {
+    background: lightgray;
+    cursor: pointer;
+}
+.friend {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    font-size: 23px;
+    width: 500px;
+    height: 50px;
+    margin: 10px 10px 10px 70px;
+}
+
+.photo {
+    border-radius: 25px;
+    margin-right: 20px;
+}
+
+.cross {
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    margin-right: 50px;
+    cursor: pointer;
+    z-index: 10;
+}
+.fa-plus, .fa-times-circle {
+    color: gray;
+    width:100%;
+    height:100%;
+    transition-duration: 300ms;
+}
+.fas:hover {
+    transform: scale(1.25);
+    transition-duration: 300ms;
+}
+ 
+.leftSearch, .rightSearch {
+    border: 1px solid orange;
+    width: 80%;
+    height: 35px;
+    font-size: 20px;
+    border-radius: 10px;
+    margin: 5px auto;
+    display: block;
+    padding-left: 45px;
+    box-sizing: border-box;
+    outline: none;
+}
+.hide {
+    display: none;
+}
+
+.search {
+    position:relative;
+}
+.fa-search {
+    position: absolute;
+    top: 6px;
+    left: 65px;
+    font-size: 25px;
+    color: gray;
+    
+}
+
+.save {
+    width: 100%;
+    height: 50px;
+    border-radius: 0 0 10px 10px;
+    border: 1px solid rgba(225, 76, 22, 0.453);
+    background: rgb(191, 115, 85);
+    cursor: pointer;
+    transition-duration: 500ms;
+    font-size: 25px;
+    color: white;
+}
+
+.save:hover {
+    background: orange;
+    transition-duration: 500ms;
+}
